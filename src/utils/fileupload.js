@@ -1,0 +1,33 @@
+import { v2 as cloudinary } from 'cloudinary';
+import fs from "fs"; //from node.js
+ // Configuration
+    cloudinary.config({ 
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
+        api_key: process.env.CLOUDINARY_API_KEY, 
+        api_secret: process.env.CLOUDINARY_API_SECRET, // Click 'View API Keys' above to copy your API secret
+        secure:true,
+    });
+
+
+    const uploadOnCloudinary = async (localFilePath) => {
+        try{
+            if(!localFilePath) return null;
+            //upload the file on Cloudinary and set the options
+
+            const options = {
+                resource_type: "auto",
+                use_filename: true, //set the publicId to name of file
+                unique_filename: false, 
+                overwrite:true, //overwrites any image with same public ID so name 
+                                //the file names must be unique that we are uploading,
+                                //otherwise the assets may get same publicID as we set `override` as false in our case
+            }
+            const response = await cloudinary.v2.uploader.upload(localFilePath,options);
+            console.log(response);
+            return response;
+        } catch (error) {
+            fs.unlinkSync(localFilePath); //remove the locally saved temporary
+            //file as the upload operation got failed.
+            console.error(error);
+        }
+    }
