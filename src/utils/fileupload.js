@@ -23,7 +23,7 @@ import fs from "fs"; //from node.js
                                 //otherwise the assets may get same publicID as we set `override` as false in our case
             }
             const response = await cloudinary.v2.uploader.upload(localFilePath,options);
-            console.log(response);
+            console.log(response,"Cloudinary Response");
             return response;
         } catch (error) {
             fs.unlinkSync(localFilePath); //remove the locally saved temporary
@@ -31,3 +31,5 @@ import fs from "fs"; //from node.js
             console.error(error);
         }
     }
+
+    export default uploadOnCloudinary;
