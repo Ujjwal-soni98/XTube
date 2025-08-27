@@ -31,6 +31,8 @@ const app = express ();
 // approach 2 is to connect db in index.js in db folder for more 
 //modular and easy to read code.
 
+import express from "express";
+import app from "./app.js"
 import dotenv from "dotenv";
 dotenv.config({
     path: './.env'   // experimental feature of dotenv to be configured in package.json dev scripts
@@ -49,8 +51,8 @@ connectDB()
         console.log(`app is listening on Port ${listeningOn}`);
     } );
 })
-.catch(() => {
-
+.catch((err) => {
+    console.log(err);
 })
 console.log(process.env.PORT)
 
