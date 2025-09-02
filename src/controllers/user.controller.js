@@ -4,6 +4,14 @@ import { User } from "../models/user.model.js";
 import uploadOnCloudinary from "../utils/fileupload.js";
 import { apiResponse } from "../utils/apiResponse.js";
 
+const generateAccessAndRefreshtoken = async (userId) =>{
+    try{
+        const user = await User.findById(userId);
+    }catch(error){
+        throw new ApiError(500, "Internal Server Error");
+    }
+}
+
 const registerUser = asyncHandler( async (req,res) => {
     // get user info from frontend form
     // validate them - should not be empty
@@ -87,5 +95,35 @@ const registerUser = asyncHandler( async (req,res) => {
 
 })
 
+const loginUser = asyncHandler( async (req, res) => {
+    // take email and password from frontend form req body -> data
+    // validate them should not be empty (username or email)
+    // find user
+    // check if credentials matches from exsting user then,
+    // generate access token and refresh token 
+    // send cookies
+    // prompt => loggedin successfully
+    const {email, username, password} = req.body;
+    if(!username || !email){
+        throw new apiError(400, 'username or email is required');
+    }
+
+    const user = await User.findOne({
+        $or: [{username}, {email}]
+    })
+
+    if(!user){
+        throw new ApiError(404, "User does not exist")
+    }
+
+    const isPasswordValid = await user.isPasswordCorrect(password);
+    
+    if(!isPasswordValid){
+        throw new ApiError(404, "Invalid Credentials. Please Try Again!");
+    }
+
+
+
+} )
 
 export {registerUser};
