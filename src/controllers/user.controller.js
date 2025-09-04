@@ -1,5 +1,5 @@
 import {asyncHandler} from "../utils/asyncHandler.js";
-import {ApiError} from "../utils/apiError.js";
+import {apiError} from "../utils/apiError.js";
 import { User } from "../models/user.model.js";
 import uploadOnCloudinary from "../utils/fileupload.js";
 import { apiResponse } from "../utils/apiResponse.js";
@@ -22,7 +22,7 @@ const generateAccessAndRefreshtoken = async (userId) =>{
         return {accessToken, refreshToken};
 
     }catch(error){
-        throw new ApiError(500, "Internal Server Error");
+        throw new apiError(500, "Internal Server Error");
     }
 }
 
@@ -38,19 +38,19 @@ const registerUser = asyncHandler( async (req,res) => {
     // return response.
 
     const {fullName, email, username, password} = req.body;
-    console.log("email", email);
+    // console.log("email", email);
 
     if(fullName === ""){
-        throw new ApiError(400, "fullName is required");
+        throw new apiError(400, "fullName is required");
     }
     else if(email === ""){
-        ApiError(400, "email is required");
+        apiError(400, "email is required");
     }
     else if(password === ""){
-        ApiError(400, "password is required");
+        apiError(400, "password is required");
     }
     else if(username === ""){
-        ApiError(400, "username is required");
+        apiError(400, "username is required");
     }
 
     // or summing all the conditions together,
@@ -59,31 +59,38 @@ const registerUser = asyncHandler( async (req,res) => {
     // if(
     //     [fullName, username, email, password].some((field) => field?.trim() === "")
     // ){
-    //     throw new ApiError(400, "All the fileds are required.")
+    //     throw new apiError(400, "All the fileds are required.")
     // }
 
-    const alreadyExistedUSer = User.findOne({
+    const alreadyExistedUser = await User.findOne({
         $or: [{email}, {username}]
     })
 
-    if(alreadyExistedUSer){
-        throw new ApiError(409, "USer with email or username already exits.")
+    if(alreadyExistedUser){
+        throw new apiError(409, "User with email or username already exits.")
     }
 
+    console.log("request received", req.files);
+    
     const avatarLocalPath = req.files?.avatar[0]?.path 
     const coverImageLocalPath = req.files?.coverImage[0]?.path
-    console.log(req.files);
+    // console.log(req.files);
 
     if(!avatarLocalPath) {
-        throw new ApiError(400, "Avatar file is required.")
+        throw new apiError(400, "Avatar file is required.")
     }
 
+    // console.log("avatarLocalPath", avatarLocalPath)
     
     const avatar = await uploadOnCloudinary(avatarLocalPath);
+// console.log(avatar, "line85");
     const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
+    
+    // console.log(coverImage, "line 86")
+
     if(!avatar){
-        throw new ApiError(400, "Avatar is required");
+        throw new apiError(400, "Avatar is required");
     }
 
     const user = await User.create({
@@ -100,7 +107,7 @@ const registerUser = asyncHandler( async (req,res) => {
     );
 
     if(!createdUser){
-        throw new ApiError(500, "Somwthing Went Wrong while regiteration of user.")
+        throw new apiError(500, "Somwthing Went Wrong while regiteration of user.")
     }
 
     return res.status(201).json(
@@ -127,13 +134,13 @@ const loginUser = asyncHandler( async (req, res) => {
     })
 
     if(!user){
-        throw new ApiError(404, "User does not exist")
+        throw new apiError(404, "User does not exist")
     }
 
     const isPasswordValid = await user.isPasswordCorrect(password);
     
     if(!isPasswordValid){
-        throw new ApiError(404, "Invalid Credentials. Please Try Again!");
+        throw new apiError(404, "Invalid Credentials. Please Try Again!");
     }
 
     const {accessToken, refreshToken} = await generateAccessAndRefreshtoken(user._id);
