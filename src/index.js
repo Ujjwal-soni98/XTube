@@ -34,10 +34,13 @@ const app = express ();
 import express from "express";
 import app from "./app.js"
 import dotenv from "dotenv";
-dotenv.config({
-    path: './.env'   // experimental feature of dotenv to be configured in package.json dev scripts
-})
+dotenv.config()
 // console.log(process.env)
+// console.log("Cloudinary ENV loaded:", {
+//   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+//   api_key: process.env.CLOUDINARY_API_KEY,
+//   api_secret: process.env.CLOUDINARY_API_SECRET ? "SET" : "MISSING",
+// });
 const listeningOn = process.env.PORT || 8000;
 import connectDB from "./db/index.js";
 connectDB()
