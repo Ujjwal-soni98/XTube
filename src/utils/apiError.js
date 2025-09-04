@@ -15,10 +15,10 @@ class apiError extends Error{
             this.stack = stack
         }
         else{
-            Error.captureStackTree(this,this,constructor)
+            Error.captureStackTrace(this,this.constructor)
         }
     }
 }
 
 
-export {apiError}
+export {apiError};
