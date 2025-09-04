@@ -1,8 +1,11 @@
-import { User } from "../models/user.model";
-import { apiError } from "../utils/apiError";
-import { asyncHandler } from "../utils/asyncHandler";
+import { User } from "../models/user.model.js";
+import { apiError } from "../utils/apiError.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken";
-import { User } from "../models/user.model";
+import dotenv from "dotenv";
+dotenv.config({
+    path: './.env'   // experimental feature of dotenv to be configured in package.json dev scripts
+})
 
 
 
