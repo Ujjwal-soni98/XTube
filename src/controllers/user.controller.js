@@ -3,6 +3,7 @@ import {apiError} from "../utils/apiError.js";
 import { User } from "../models/user.model.js";
 import uploadOnCloudinary from "../utils/fileupload.js";
 import { apiResponse } from "../utils/apiResponse.js";
+import jwt from "jsonwebtoken";
 
 const generateAccessAndRefreshtoken = async (userId) =>{
     try{
@@ -190,6 +191,50 @@ const logoutUser = asyncHandler( async(req, res) => {
     .clearCookie("accessToken", options)
     .clearCookie("refreshToken", options)
     .json(new apiResponse(200, {}, "User Logged Out Successfully"))
+})
+
+const refreshAccessToken = asyncHandler( async(req, res) => {
+    const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
+    if(incomingRefreshToken){
+        throw new apiError(401, "Unauthorized Request");
+    }
+
+    try {
+        const decodedIncomingToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET)
+    
+        const user = await User.findById(decodedIncomingToken?._id);
+        
+        if(!user){
+                throw new apiError(400, "Invalid Refresh Token");
+        }
+    
+        //check incoming refereshtoken and user's refresh token from db
+        if(incomingRefreshToken !== user?.refreshToken){
+            throw new apiError(401, "Refresh Token is Expired.")
+        }
+    
+        const options = {
+            httpOnly: true,
+            secure: true
+        }
+    
+        const{newAccessToken, newRefreshToken} = await generateAccessAndRefreshtoken(user._id);
+    
+        return res
+        .status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", newRefreshToken, options )
+        .json(
+            new apiResponse(
+                {
+                    accessToken, 
+                    refreshAccessToken: newRefreshToken
+                }
+            )
+        )
+    } catch (error) {
+        throw new apiError(401, error?.message || "Invalid Refresh Token")
+    }
 })
 
 export {registerUser, loginUser, logoutUser};
