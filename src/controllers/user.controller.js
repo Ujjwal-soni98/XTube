@@ -411,6 +411,17 @@ const getUserChannelInfo = asynHandler(async (req, res) => {
             }
         }
     ])
+
+    console.log(channel, "channel object after aggregation");
+
+    if(!channel?.length){
+        throw new apiError(400, "channel does not exists")
+    }
+
+    return res.status(200)
+    .json(
+        new apiResponse(200, channel[0], "user channel fetched successfully")
+    )
 })
 
 
