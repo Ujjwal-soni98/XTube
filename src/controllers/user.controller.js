@@ -4,6 +4,7 @@ import { User } from "../models/user.model.js";
 import uploadOnCloudinary from "../utils/fileupload.js";
 import { apiResponse } from "../utils/apiResponse.js";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 const generateAccessAndRefreshtoken = async (userId) =>{
     try{
@@ -425,6 +426,17 @@ const getUserChannelInfo = asynHandler(async (req, res) => {
 })
 
 
+const getWatchHistory = asyncHandler(async(req, res) => {
+    const user = await User.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(req.user._id)
+            }
+        }
+    ])
+})
+
+
 export {
     registerUser,
     loginUser,
@@ -434,5 +446,6 @@ export {
     getCurrentUser, 
     updateAccountDetails,
     updateUserAvatar,
-    updateCoverImage
+    updateCoverImage,
+    getWatchHistory
 };
